@@ -2,11 +2,13 @@ package com.example.FirstResApp.controllers;
 
 import com.example.FirstResApp.models.Person;
 import com.example.FirstResApp.services.PeopleService;
+import com.example.FirstResApp.util.PersonErrorResponse;
+import com.example.FirstResApp.util.PersonNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class PeopleController {
     }
 
     @GetMapping()
-    public List<Person> getPeople(){
+    public List<Person> getPeople() {
         return peopleService.findAll(); // jackson converts objects to JSON
     }
 
@@ -31,4 +33,12 @@ public class PeopleController {
         return peopleService.findOne(id);
     }
 
+    @ExceptionHandler
+    private ResponseEntity<PersonErrorResponse> handleException(PersonNotFoundException e) {
+        PersonErrorResponse response = new PersonErrorResponse(
+                "Person with this id was not found",
+                System.currentTimeMillis());
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
 }
